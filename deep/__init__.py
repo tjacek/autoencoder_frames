@@ -60,22 +60,18 @@ def compute_updates(loss, params, learning_rate=0.05):
     return updates
 
 def learning_iter(img_frame,cls,
-                  n_epochs=100,batch_size=10):
+                  n_epochs=1000,batch_size=10):
     X_b=img_frame['Images']
     y_b=img_frame['Category']
 
-    n_train_batches=len(y_b)
+    n_train_batches=get_number_of_batches(y_b,batch_size)#len(y_b)
     print '... training the model'
     timer = utils.Timer()
     for epoch in xrange(n_epochs):
         c = []
         for batch_index in xrange(n_train_batches):
-            x_i=X_b[batch_index]
-            x_i= np.transpose(x_i)
-            y_i=y_b[batch_index]
-            y_i=np.array([y_i])
-            #y_i=np.reshape(y_i,(1,1))
-            #print(x_i.shape)
+            x_i,y_i=get_batch(batch_index,X_b,y_b,batch_size)
+            #print(y_i.shape)
             c.append(cls.train(x_i,y_i))
 
         print 'Training epoch %d, cost ' % epoch, np.mean(c)
@@ -83,3 +79,18 @@ def learning_iter(img_frame,cls,
     timer.stop()
     print("Training time %d ",timer.total_time)
     return cls
+
+def get_number_of_batches(dataset,batch_size):
+    n_batches=len(dataset)/batch_size
+    if((len(dataset) % batch_size) != 0):
+        n_batches+=1 
+    return n_batches
+
+def get_batch(i,x,y,batch_size):
+    begin=i*batch_size
+    end=(i+1)*batch_size
+    x_i=x[begin:end].tolist()
+    x_i=np.array(x_i)
+    y_i=y[begin:end].tolist()
+    y_i=np.array(y_i)
+    return x_i,y_i
