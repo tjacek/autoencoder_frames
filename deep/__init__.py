@@ -60,7 +60,7 @@ def compute_updates(loss, params, learning_rate=0.05):
     return updates
 
 def learning_iter(img_frame,cls,
-                  n_epochs=1000,batch_size=10):
+                  n_epochs=100,batch_size=10):
     X_b=img_frame['Images']
     y_b=img_frame['Category']
 
@@ -79,6 +79,14 @@ def learning_iter(img_frame,cls,
     timer.stop()
     print("Training time %d ",timer.total_time)
     return cls
+
+def check_prediction(img_frame,cls):
+    X_b=img_frame['Images']
+    y_b=img_frame['Category']
+    for i,y_j in enumerate(y_b):
+        x_i,y_i=get_batch(i,X_b,y_b,1)
+        cls.test(x_i)
+    print(X_b.shape)
 
 def get_number_of_batches(dataset,batch_size):
     n_batches=len(dataset)/batch_size
