@@ -20,10 +20,11 @@ class LabeledImages(object):
         return [self.X,self.y]
 
 class Classifier(object):
-    def __init__(self,free_vars,model,train,test):
+    def __init__(self,free_vars,model,train,test,prob_dist):
         self.free_vars=free_vars
         self.model=model
         self.test=test
+        self.prob_dist=prob_dist
         self.train=train
 
 class RandomNum(object):
@@ -87,8 +88,10 @@ def check_prediction(img_frame,cls):
         return get_batch(i,X_b,y_b,1)[0]
     x_std=[standard_img(i) for i in range(len(y_b))]
     y_pred=[cls.test(x_i) for x_i in x_std]
+    prob_vecs=[cls.prob_dist(x_i) for x_i in x_std]
     compr=[ y_i==y_p for y_i,y_p in zip(y_b,y_pred)]
     compr=[int(c[0]) for c in compr]
+    print(prob_vecs)
     print(compr)
     acc=np.mean(compr)
     print(acc)

@@ -15,8 +15,8 @@ def built_nn_cls(shape=(3200,2)):
     hyper_params=get_hyper_params()
     free_vars=deep.LabeledImages()
     model= create_mlp_model(hyper_params)
-    train,test=create_nn_fun(free_vars,model,hyper_params)
-    return deep.Classifier(free_vars,model,train,test)
+    train,test,prob_dist=create_nn_fun(free_vars,model,hyper_params)
+    return deep.Classifier(free_vars,model,train,test,prob_dist)
 
 def create_mlp_model(hyper_params):
     n_in=hyper_params['n_in']
@@ -36,14 +36,15 @@ def create_nn_fun(free_vars,model,hyper_params):
     input_vars=free_vars.get_vars()
     params=model.get_params()
     update=deep.compute_updates(loss, params, learning_rate)
-    print(update)
     train = theano.function(inputs=input_vars, 
                                 outputs=loss, updates=update, 
                                 allow_input_downcast=True)
     y_pred = T.argmax(py_x, axis=1)
+    prob_dist=theano.function(inputs=[free_vars.X], outputs=py_x, 
+            allow_input_downcast=True) 
     test=theano.function(inputs=[free_vars.X], outputs=y_pred, 
             allow_input_downcast=True) 
-    return train,test
+    return train,test,prob_dist
 
 def get_px_y(free_vars,model):
     hidden=model.hidden
@@ -57,5 +58,5 @@ def get_loss_function(free_vars,py_x):
 
 def get_hyper_params(learning_rate=0.05):
     params={'learning_rate': learning_rate,
-            'n_in':3200,'n_out':21,'n_hidden':900}
+            'n_in':3200,'n_out':2,'n_hidden':900}
     return params
