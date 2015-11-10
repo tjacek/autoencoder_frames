@@ -60,7 +60,7 @@ def compute_updates(loss, params, learning_rate=0.05):
     return updates
 
 def learning_iter(img_frame,cls,
-                  n_epochs=100,batch_size=10):
+                  n_epochs=1000,batch_size=10):
     X_b=img_frame['Images']
     y_b=img_frame['Category']
 
@@ -83,10 +83,16 @@ def learning_iter(img_frame,cls,
 def check_prediction(img_frame,cls):
     X_b=img_frame['Images']
     y_b=img_frame['Category']
-    for i,y_j in enumerate(y_b):
-        x_i,y_i=get_batch(i,X_b,y_b,1)
-        cls.test(x_i)
-    print(X_b.shape)
+    def standard_img(i): 
+        return get_batch(i,X_b,y_b,1)[0]
+    x_std=[standard_img(i) for i in range(len(y_b))]
+    y_pred=[cls.test(x_i) for x_i in x_std]
+    compr=[ y_i==y_p for y_i,y_p in zip(y_b,y_pred)]
+    compr=[int(c[0]) for c in compr]
+    print(compr)
+    acc=np.mean(compr)
+    print(acc)
+    return acc
 
 def get_number_of_batches(dataset,batch_size):
     n_batches=len(dataset)/batch_size

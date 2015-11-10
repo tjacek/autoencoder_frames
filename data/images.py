@@ -22,7 +22,7 @@ def create_img_frame(images):
 def standard_image(cat,img):
     img=img.flatten()
     img/=max(img)
-    img=np.reshape(img,(img.size,1))
+    #img=np.reshape(img,(img.size,1))
     return cat,img
 
 if __name__ == "__main__":
