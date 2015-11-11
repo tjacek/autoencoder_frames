@@ -1,5 +1,6 @@
 import utils
 import data.images as images
+import data.actions as acts
 import deep,deep.nn as nn
 
 def create_cls(img_path,out_path):
@@ -9,8 +10,20 @@ def create_cls(img_path,out_path):
     utils.save_object(cls,out_path)
     return cls
 
+def action_imgs(action_path,cls_path):
+    action_frame=acts.read_action_frame(action_path)
+    cls=utils.read_object(cls_path)
+    convert_actions(action_frame,cls)
+    print(action_frame.head())
+
+def convert_actions(action_frame,cls):
+    actions= action_frame['Action']
+    return [action.to_time_series(cls) for action in actions]
+
 if __name__ == "__main__":
     img_path="../imgs/"
-    out_path="../nn/test"
-    cls=create_cls(img_path,out_path)
+    cls_path="../nn/test"
+    action_path="../small/"
+    action_imgs(action_path,cls_path)
+    #cls=create_cls(img_path,out_path)
     #deep.check_prediction(img_frame,cls)
