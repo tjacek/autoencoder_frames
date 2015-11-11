@@ -10,10 +10,14 @@ def create_cls(img_path,out_path):
     utils.save_object(cls,out_path)
     return cls
 
-def action_imgs(action_path,cls_path):
+def action_imgs(action_path,cls_path,out_path):
     action_frame=acts.read_action_frame(action_path)
     cls=utils.read_object(cls_path)
     convert_actions(action_frame,cls)
+    utils.make_dir(out_path)
+    actions=action_frame['Action']
+    act_imgs=[ (action.name,action.to_action_img()) for action in actions]
+    utils.save_images(out_path,act_imgs)
     print(action_frame.head())
 
 def convert_actions(action_frame,cls):
@@ -24,6 +28,7 @@ if __name__ == "__main__":
     img_path="../imgs/"
     cls_path="../nn/test"
     action_path="../small/"
-    action_imgs(action_path,cls_path)
+    out_path="../action_imgs/"
+    action_imgs(action_path,cls_path,out_path)
     #cls=create_cls(img_path,out_path)
     #deep.check_prediction(img_frame,cls)

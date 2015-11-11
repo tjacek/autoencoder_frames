@@ -14,7 +14,25 @@ class Action(object):
         self.time_series=None
 
     def to_time_series(self,cls):
-        self.time_series=[cls.prob_dist(img) for img in self.images] 
+        time_series=[cls.prob_dist(img) for img in self.images] 
+        time_series=[ts.flatten() for ts in time_series] 
+        time_series=np.array(time_series)
+        columns=['c'+str(i) for i in range(time_series.shape[1])]
+        index=range(self.length)
+        self.time_series=pd.DataFrame(time_series,index=index,columns=columns)
+
+    def to_action_img(self):
+        time_series=self.time_series
+        multipler=10
+        cols=time_series.columns
+        length=len(time_series)
+        dim=len(cols)*multipler
+        action_img=np.zeros((length,dim))
+        for i in range(length):
+            for j in range(dim):
+                chnl=cols[j/multipler]
+                action_img[i][j]=time_series[chnl][i]
+        return action_img
 
     def __str__(self):
         return self.name
@@ -51,6 +69,8 @@ def standarize_img(img):
     img=img.flatten()
     img=img/max(img)
     return np.reshape(img,(1,img.size))
+
+
 
 if __name__ == "__main__":
     path="../../"#"/home/user/cls/"
