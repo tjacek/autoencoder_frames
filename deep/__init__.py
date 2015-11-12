@@ -2,6 +2,7 @@ import utils
 import theano
 import theano.tensor as T
 import numpy as np
+import theano.tensor.shared_randomstreams as rnd_strems
 
 class LayerModel(object):
     def __init__(self,W,b):
@@ -30,6 +31,8 @@ class Classifier(object):
 class RandomNum(object):
     def __init__(self):
         self.rng = np.random.RandomState(123)
+        init_stream=self.rng.randint(2 ** 30)
+        self.theano_rng=rnd_strems.RandomStreams(init_stream)
 
     def random_matrix(self,n_x,n_y):
         bound=np.sqrt(6. / (n_x + n_y))
@@ -60,8 +63,11 @@ def compute_updates(loss, params, learning_rate=0.05):
     ]
     return updates
 
+def get_sigmoid(x,w,b):
+    return T.nnet.sigmoid(T.dot(x,w) + b)
+
 def learning_iter(img_frame,cls,
-                  n_epochs=1000,batch_size=10):
+                  n_epochs=1000,batch_size=10,supervised=True):
     X_b=img_frame['Images']
     y_b=img_frame['Category']
 
@@ -73,8 +79,10 @@ def learning_iter(img_frame,cls,
         for batch_index in xrange(n_train_batches):
             x_i,y_i=get_batch(batch_index,X_b,y_b,batch_size)
             #print(y_i.shape)
-            c.append(cls.train(x_i,y_i))
-
+            if(supervised):
+                c.append(cls.train(x_i,y_i))
+            else:
+                c.append(cls.train(x_i))
         print 'Training epoch %d, cost ' % epoch, np.mean(c)
 
     timer.stop()
