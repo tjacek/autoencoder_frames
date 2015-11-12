@@ -1,12 +1,14 @@
-import utils
+import utils,data,deep
 import data.images as images
 import data.actions as acts
-import deep,deep.nn as nn
+import deep.nn as nn
 
 def create_cls(img_path,out_path):
     img_frame=images.read_image_frame(img_path)
-    cls=nn.built_nn_cls()
-    cls=deep.learning_iter(img_frame,cls,n_epochs=100)
+    n_cats=data.get_n_cats(img_frame)
+    print(n_cats)
+    cls=nn.built_nn_cls(n_cats)
+    cls=deep.learning_iter(img_frame,cls,n_epochs=1000)
     utils.save_object(cls,out_path)
     return cls
 
@@ -26,9 +28,9 @@ def convert_actions(action_frame,cls):
 
 if __name__ == "__main__":
     img_path="../imgs/"
-    cls_path="../nn/test"
-    action_path="../small/"
+    cls_path="../nn/large1"
+    action_path="../large/"
     out_path="../action_imgs/"
     action_imgs(action_path,cls_path,out_path)
-    #cls=create_cls(img_path,out_path)
+    #cls=create_cls(img_path,cls_path)
     #deep.check_prediction(img_frame,cls)
