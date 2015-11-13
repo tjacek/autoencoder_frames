@@ -1,8 +1,8 @@
-#import deep
 import numpy as np
 import theano
 import theano.tensor as T
 import deep,utils
+import scipy.misc
 
 class AutoencoderModel(object):
     def __init__(self,W,b,b_prime):
@@ -28,6 +28,14 @@ def built_ae_cls():
     hyper_params=get_hyper_params()
     free_vars=deep.LabeledImages()
     model,rand= create_ae_model(hyper_params)
+    train,test,get_image=create_ae_fun(free_vars,model,rand,hyper_params)
+    return AutoEncoder(free_vars,model,train,test,get_image,rand)
+
+def read_autoencoder(cls_path):
+    model=utils.read_object(cls_path)
+    hyper_params=get_hyper_params()
+    free_vars=deep.LabeledImages()
+    rand=deep.RandomNum()
     train,test,get_image=create_ae_fun(free_vars,model,rand,hyper_params)
     return AutoEncoder(free_vars,model,train,test,get_image,rand)
 
@@ -79,3 +87,15 @@ def get_hyper_params(learning_rate=0.05):
     params={'learning_rate': learning_rate,'corruption_level':0,
             'n_visible':3200,'n_hidden':900}
     return params
+
+def reconstruct_images(img_frame,ae,out_path):
+    utils.make_dir(out_path)
+    imgs=img_frame['Images']
+    #cats=img_frame['Category']
+    for i,img in enumerate(imgs):
+        img=np.reshape(img,(1,3200))
+        rec_image=ae.get_image(img)
+        img2D=np.reshape(rec_image,(80,40))
+        img_path=out_path+"img"+str(i)+".png"
+        print(img_path)
+        scipy.misc.imsave(img_path,img2D)
