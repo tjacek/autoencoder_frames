@@ -2,6 +2,7 @@ import os
 import os.path as io 
 import timeit,pickle,re
 import scipy.misc as image
+import numpy as np
 
 class Timer(object):
     def __init__(self):
@@ -26,8 +27,11 @@ def get_dirs(path):
     dirs.sort()
     return dirs
 
-def get_paths(dir_path):
-    files=get_files(dir_path)
+def get_paths(dir_path,dirs=False):
+    if(dirs):
+        files=get_dirs(dir_path)
+    else:
+        files=get_files(dir_path)
     files=["/" + f for f in files]
     return append_path(dir_path,files)
 
@@ -81,8 +85,18 @@ def to_txt_file(path,array):
     txt=array_to_txt(array)
     save_string(path,txt)
 
-def get_zeros(n):
-    return [0 for i in range(n)]
-
 def change_postfix(filename,old=".seq",new=".lb"):
     return filename.replace(old,new)
+
+def save_images(path,act_imgs):
+    make_dir(path)
+    for name,img in act_imgs:
+        full_path=path+name+".png"
+        print(full_path)
+        image.imsave(full_path,img)
+
+def unflat_images(flat_img,new_shape):
+    return [np.reshape(img,new_shape) for img in flat_img]
+
+def named_images(name,imgs):
+    return [ (name+str(i),img) for i,img in enumerate(imgs)]
