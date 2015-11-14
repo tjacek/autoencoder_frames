@@ -1,8 +1,6 @@
 import re,pandas as pd 
 import utils
 import numpy as np
-#import imp
-#utils =imp.load_source("utils","../utils.py")
 
 class Action(object):
     def __init__(self,name,images):
@@ -12,9 +10,10 @@ class Action(object):
 	self.dim=self.images[0].shape[0]
 	self.length=len(self.images)
         self.time_series=None
+        self.normalize()
 
     def to_time_series(self,cls):
-        time_series=[cls.prob_dist(img) for img in self.images] 
+        time_series=[cls.get_(img) for img in self.images] 
         time_series=[ts.flatten() for ts in time_series] 
         time_series=np.array(time_series)
         columns=['c'+str(i) for i in range(time_series.shape[1])]
@@ -33,6 +32,14 @@ class Action(object):
                 chnl=cols[j/multipler]
                 action_img[i][j]=time_series[chnl][i]
         return action_img
+
+    def normalize(self):
+        a_max=float(self.max())
+        self.images=[x_i/a_max for x_i in self.images]
+
+    def max(self):
+        max_array=[np.amax(x_i) for x_i in self.images]
+        return max(max_array)
 
     def __str__(self):
         return self.name
@@ -56,6 +63,14 @@ def read_action(action_path):
     images=utils.read_img_dir(action_path)
     return Action(action_name,images)
 
+def save_action(path,action):
+    action_path=path+str(action)+"/"
+    utils.make_dir(action_path)
+    for i,img in enumerate(action.images):
+        img_path=action_path+str(action)+"_"+str(i)
+        img=np.reshape(img,(80,40))
+        utils.save_img(img_path,img)
+
 def get_action_name(action_path):
     name=action_path.split("/")[-1]
     return name.replace("_sdepth","")
@@ -67,10 +82,8 @@ def extract_info(action_name,i):
 
 def standarize_img(img):
     img=img.flatten()
-    img=img/max(img)
+    #img=img/max(img)
     return np.reshape(img,(1,img.size))
-
-
 
 if __name__ == "__main__":
     path="../../"#"/home/user/cls/"
