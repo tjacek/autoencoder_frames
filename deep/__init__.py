@@ -28,6 +28,9 @@ class Classifier(object):
         self.prob_dist=prob_dist
         self.train=train
 
+    def get_features(self,img):
+        return self.prob_dist(img)
+
 class RandomNum(object):
     def __init__(self):
         self.rng = np.random.RandomState(123)
@@ -67,7 +70,7 @@ def get_sigmoid(x,w,b):
     return T.nnet.sigmoid(T.dot(x,w) + b)
 
 def learning_iter(img_frame,cls,
-                  n_epochs=1000,batch_size=10,supervised=True):
+                  n_epochs=250,batch_size=100,supervised=True):
     X_b=img_frame['Images']
     y_b=img_frame['Category']
 

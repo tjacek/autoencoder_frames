@@ -85,7 +85,7 @@ def get_reconstructed_input(model,hidden):
 
 def get_hyper_params(learning_rate=0.05):
     params={'learning_rate': learning_rate,'corruption_level':0,
-            'n_visible':3200,'n_hidden':900}
+            'n_visible':3200,'n_hidden':1600}
     return params
 
 def reconstruct_images(img_frame,ae,out_path):
