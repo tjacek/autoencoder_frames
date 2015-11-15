@@ -6,8 +6,28 @@ def standarize_actions(in_path,out_path):
     utils.make_dir(out_path)
     for action in action_frame['Action']:
     	print(action)
-    	normalize_action(action)
+    	discretize_action(action)
     	actions.save_action(out_path,action)
+
+def discretize_action(action):
+    action.images=[discretize_img(img) for img in action.images]
+    return action
+
+def discretize_img(img):
+    nonzero=img[np.nonzero(img)]
+    avg=np.average(nonzero)
+    sd=np.std(nonzero)
+    return [disc_pixel(pix,avg,sd) for pix in img.flatten()]
+ 
+def disc_pixel(pixel,avg,sd):
+    if(pixel==0.0):
+        return 0.0
+    pixel-=avg
+    pixel/=sd
+    pixel=np.floor(pixel)
+    if(pixel==-1 or pixel==1):
+    	pixel=0.0
+    return (pixel+3.0)*10.0   
 
 def normalize_action(action):
     ar_max=act_max(action)
