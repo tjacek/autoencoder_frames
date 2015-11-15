@@ -10,7 +10,6 @@ class Action(object):
 	self.dim=self.images[0].shape[0]
 	self.length=len(self.images)
         self.time_series=None
-        self.normalize()
 
     def to_time_series(self,cls):
         time_series=[cls.get_(img) for img in self.images] 
@@ -32,14 +31,6 @@ class Action(object):
                 chnl=cols[j/multipler]
                 action_img[i][j]=time_series[chnl][i]
         return action_img
-
-    def normalize(self):
-        a_max=float(self.max())
-        self.images=[x_i/a_max for x_i in self.images]
-
-    def max(self):
-        max_array=[np.amax(x_i) for x_i in self.images]
-        return max(max_array)
 
     def __str__(self):
         return self.name
@@ -83,7 +74,7 @@ def extract_info(action_name,i):
 def standarize_img(img):
     img=img.flatten()
     #img=img/max(img)
-    return np.reshape(img,(1,img.size))
+    return np.reshape(img,(1,img.size))  
 
 if __name__ == "__main__":
     path="../../"#"/home/user/cls/"
