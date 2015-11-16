@@ -4,10 +4,11 @@ import utils
 
 class PcaReduction(object):
     def __init__(self,imgs):
-        self.pca=decomp.PCA()
         imgs=list(imgs)
         imgs=np.array(imgs)
-        print(imgs.shape)
+        dim=imgs.shape[1]
+        print(dim)
+        self.pca=decomp.PCA(n_components=dim)
         self.pca.fit(imgs)
 
     def transform(self,x):
@@ -21,3 +22,19 @@ class PcaReduction(object):
     	princ_comps=utils.unflat_images(princ_comps,new_shape)
     	princ_comps=utils.named_images("pca",princ_comps)
         return princ_comps
+
+
+class PcaDecorator(object):
+    def __init__(self,pca,autoencoder):
+        self.pca=pca
+        self.autoencoder=autoencoder
+
+    def train(self,x):
+        x_proj=self.pca.transform(x)
+        print(x_proj.shape)
+        return self.autoencoder.train(x_proj)
+
+    def transform(self,x):
+        x_proj=self.pca.transform(x)
+        return self.autoencoder.transform(x_proj)
+
