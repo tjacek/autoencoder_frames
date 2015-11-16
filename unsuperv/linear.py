@@ -23,7 +23,6 @@ class PcaReduction(object):
     	princ_comps=utils.named_images("pca",princ_comps)
         return princ_comps
 
-
 class PcaDecorator(object):
     def __init__(self,pca,autoencoder):
         self.pca=pca
@@ -31,10 +30,23 @@ class PcaDecorator(object):
 
     def train(self,x):
         x_proj=self.pca.transform(x)
-        print(x_proj.shape)
         return self.autoencoder.train(x_proj)
 
     def transform(self,x):
         x_proj=self.pca.transform(x)
         return self.autoencoder.transform(x_proj)
 
+    def get_image(self,x):
+        x_proj=self.pca.transform(x)
+        x_hid=self.autoencoder.transform(x_proj)
+        
+
+    def get_model(self):
+        ae_model=self.autoencoder.model
+        return PcaModel(ae_model,self.pca)
+
+class PcaModel(object):
+    def __init__(self,ae_model,nn_model):
+        self.ae_model=ae_model
+        self.nn_model=nn_model
+   
