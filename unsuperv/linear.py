@@ -3,12 +3,13 @@ import sklearn.decomposition as decomp
 import utils
 
 class PcaReduction(object):
-    def __init__(self,imgs):
+    def __init__(self,imgs,dim=None):
         imgs=list(imgs)
         imgs=np.array(imgs)
-        dim=imgs.shape[1]
+        if(dim==None):
+            dim=imgs.shape[1]
         print(dim)
-        self.pca=decomp.PCA(n_components=dim)
+        self.pca=decomp.PCA(n_components=dim,whiten=True)
         self.pca.fit(imgs)
 
     def transform(self,x):
@@ -52,3 +53,12 @@ class PcaModel(object):
     def __init__(self,ae_model,nn_model):
         self.ae_model=ae_model
         self.nn_model=nn_model
+
+def transform_images(imgs,pca):
+    imgs=[pca.transform(x) for x in imgs]
+    imgs=[pca.inverse_transform(x) for x in imgs]
+    imgs=[np.reshape(x,(80,40)) for x in imgs]
+    return [ ("pca"+str(i),x) for i,x in enumerate(imgs)]
+
+#def _trans(img):
+    

@@ -2,6 +2,7 @@ import utils,data,deep
 import data.images as images
 import data.actions as acts
 import deep.nn as nn
+import deep.composite as comp
 
 def create_cls(img_path,out_path):
     img_frame=images.read_image_frame(img_path)
@@ -14,7 +15,7 @@ def create_cls(img_path,out_path):
 
 def action_imgs(action_path,cls_path,out_path):
     action_frame=acts.read_action_frame(action_path)
-    cls=utils.read_object(cls_path)
+    cls=comp.read_composite(cls_path)#utils.read_object(cls_path)
     convert_actions(action_frame,cls)
     utils.make_dir(out_path)
     actions=action_frame['Action']
@@ -28,9 +29,10 @@ def convert_actions(action_frame,cls):
 
 if __name__ == "__main__":
     img_path="../imgs/"
-    cls_path="../nn/large1"
-    action_path="../large/"
+    cls_path="../nn/comp1"
+    action_path="../large_/"
     out_path="../action_imgs/"
-    action_imgs(action_path,cls_path,out_path)
     #cls=create_cls(img_path,cls_path)
+    #utils.read_object()
+    action_imgs(action_path,cls_path,out_path)
     #deep.check_prediction(img_frame,cls)

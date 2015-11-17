@@ -1,3 +1,4 @@
+import utils
 import numpy as np
 import theano
 import theano.tensor as T
@@ -15,8 +16,8 @@ class FeatureExtractor(object):
         return self.nn.train(reduced_img,label)
 
     def get_features(self,img):
-        reduced_img=self.autoencoder.test(img)
-	return self.nn.get_features(redu_img)
+        redu_img=self.autoencoder.test(img)
+        return self.nn.get_features(redu_img)
 
     def get_model(self):
         ae_model=self.autoencoder.model
@@ -28,8 +29,15 @@ class CompositeModel(object):
         self.ae_model=ae_model
         self.nn_model=nn_model
 
-def create_extractor(n_cats,ae_path,n=900):
+def create_extractor(n_cats,ae_path,n=800):
     ae=autoencoder.read_autoencoder(ae_path)
-    hyper_params=nn.get_hyper_params(n_cats,1600)
+    hyper_params=nn.get_hyper_params(n_cats,800)
     nn_cls=nn.built_nn_cls(n_cats,hyper_params)
     return FeatureExtractor(ae,nn_cls)
+
+def read_composite(cls_path):
+    model=utils.read_object(cls_path)
+    rand=deep.RandomNum()
+    ae=autoencoder.init_autoencoder(model.ae_model,rand)
+    cls_nn=nn.init_nn(5,model.nn_model)
+    return FeatureExtractor(ae,cls_nn)

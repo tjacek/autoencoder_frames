@@ -12,7 +12,7 @@ class Action(object):
         self.time_series=None
 
     def to_time_series(self,cls):
-        time_series=[cls.get_(img) for img in self.images] 
+        time_series=[cls.get_features(img) for img in self.images] 
         time_series=[ts.flatten() for ts in time_series] 
         time_series=np.array(time_series)
         columns=['c'+str(i) for i in range(time_series.shape[1])]
