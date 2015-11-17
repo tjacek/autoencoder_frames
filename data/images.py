@@ -21,7 +21,12 @@ def create_img_frame(images):
 
 def standard_image(cat,img):
     img=img.flatten()
-    img/=max(img)
+    img=img.astype(float)
+    #print(max(img))
+    #print(min(img))
+    #img/=100.0
+    img/=np.amax(img)
+    #img*=250
     #img=np.reshape(img,(img.size,1))
     return cat,img
 
