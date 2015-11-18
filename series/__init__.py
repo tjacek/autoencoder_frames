@@ -2,7 +2,7 @@
 def extract_features(action_frame,extractor):
     actions=action_frame['Action']
     cats=action_frame['Category']
-    extractors=[trivial_extr,var_extr]
+    extractors=[trivial_extr,autocorr_extr]
     comb_extr=get_combined_extractors(extractors)
     features=[comb_extr(act.time_series) for act in actions]
     labeled_features=[(ft,cat) for ft,cat in zip(features,cats)]
@@ -16,6 +16,11 @@ def trivial_extr(time_series):
 def var_extr(time_series):
     time_series=get_time_series(time_series)
     features=[td.std() for td in time_series]
+    return features
+
+def autocorr_extr(time_series):
+    time_series=get_time_series(time_series)
+    features=[td.autocorr() for td in time_series]
     return features
 
 def get_combined_extractors(extr):
