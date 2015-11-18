@@ -50,8 +50,10 @@ def create_action_frame(actions):
                            'Person':persons})
 
 def read_action(action_path):
+    print(action_path)
     action_name=get_action_name(action_path)
     images=utils.read_img_dir(action_path)
+    print(len(images))
     return Action(action_name,images)
 
 def save_action(path,action):
@@ -73,7 +75,8 @@ def extract_info(action_name,i):
 
 def standarize_img(img):
     img=img.flatten()
-    #img=img/max(img)
+    img=img.astype(float)
+    img/=np.amax(img)
     return np.reshape(img,(1,img.size))  
 
 if __name__ == "__main__":
