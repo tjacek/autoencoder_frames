@@ -89,14 +89,30 @@ def change_postfix(filename,old=".seq",new=".lb"):
     return filename.replace(old,new)
 
 def save_images(path,act_imgs):
+    print(path)
     make_dir(path)
     for name,img in act_imgs:
-        full_path=path+name+".png"
-        print(full_path)
-        image.imsave(full_path,img)
+        save_img(path+name,img)
+
+def save_img(path,img):
+    full_path=path+".png"
+    #img/=np.amax(img)
+    #img*=100
+    #print(full_path)
+    image.imsave(full_path,img)
 
 def unflat_images(flat_img,new_shape):
     return [np.reshape(img,new_shape) for img in flat_img]
 
 def named_images(name,imgs):
     return [ (name+str(i),img) for i,img in enumerate(imgs)]
+
+def to_labeled_file(path,labeled_vectors):
+    lb=""
+    for instance,cat in labeled_vectors:
+        line=""
+        for cord_i in instance:
+            line+=str(cord_i)+","
+        line+="#"+str(cat)+"\n"
+        lb+=line
+    save_string(path,lb)
