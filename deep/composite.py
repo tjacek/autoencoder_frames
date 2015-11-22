@@ -24,6 +24,10 @@ class FeatureExtractor(object):
         nn_model=self.nn.model
         return CompositeModel(ae_model,nn_model)
 
+    def get_category(self,img):
+        redu_img=self.autoencoder.test(img)
+        return self.nn.test(redu_img)[0]
+
 class CompositeModel(object):
     def __init__(self,ae_model,nn_model):
         self.ae_model=ae_model
@@ -31,7 +35,7 @@ class CompositeModel(object):
 
 def create_extractor(n_cats,ae_path,n=800):
     ae=autoencoder.read_autoencoder(ae_path)
-    hyper_params=nn.get_hyper_params(n_cats,800)
+    hyper_params=nn.get_hyper_params(n_cats,500)
     nn_cls=nn.built_nn_cls(n_cats,hyper_params)
     return FeatureExtractor(ae,nn_cls)
 

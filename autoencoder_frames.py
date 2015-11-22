@@ -23,8 +23,7 @@ def action_imgs(action_frame,out_path):
     print(action_frame.head())
 
 def action_features(action_path,cls_path,out_path):
-    action_frame=acts.read_action_frame(action_path)
-    cls=comp.read_composite(cls_path)#utils.read_object(cls_path)
+    action_frame,cls=read_all(action_path,cls_path)
     convert_actions(action_frame,cls)
     extractor=series.trivial_extr
     labeled_vectors=series.extract_features(action_frame,extractor)
@@ -35,6 +34,22 @@ def convert_actions(action_frame,cls):
     actions= action_frame['Action']
     return [action.to_time_series(cls) for action in actions]
 
+def apply_cls(action_path,cls_path,out_path):
+    action_frame,cls=read_all(action_path,cls_path)
+    actions= action_frame['Action']
+    images=[]
+    for act in actions:
+        images+=[( cls.get_category(img) , utils.to_2D(img) ) for img in act.images]
+    def give_name(cat,i):
+        return 'cat_'+str(cat)+'_'+str(i)     
+    imgs=[(give_name(img[0],i),img[1]) for i,img in enumerate(images)]
+    utils.save_images(out_path,imgs)
+
+def read_all(action_path,cls_path):
+    action_frame=acts.read_action_frame(action_path)
+    cls=comp.read_composite(cls_path)
+    return action_frame,cls
+
 if __name__ == "__main__":
     img_path="../imgs/"
     cls_path="../nn/comp3"
@@ -42,5 +57,6 @@ if __name__ == "__main__":
     action_path="../large_/"
     out_path="../action_imgs/"
     #cls=create_cls(img_path,ae_path,cls_path)
-    af=action_features(action_path,cls_path,"../result/af.lb")
-    action_imgs(af,out_path)
+    #af=action_features(action_path,cls_path,"../result/af.lb")
+    #action_imgs(af,out_path)
+    apply_cls(action_path,cls_path,"../test2")
