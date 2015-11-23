@@ -8,6 +8,9 @@ def extract_features(action_frame,extractor):
     labeled_features=[(ft,cat) for ft,cat in zip(features,cats)]
     return labeled_features
 
+def curry_extractor(extractor):
+    return lambda af:extract_features(af,extractor)
+
 def trivial_extr(time_series):
     time_series=get_time_series(time_series)
     features=[td.mean() for td in time_series]

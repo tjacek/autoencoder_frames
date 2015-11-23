@@ -30,6 +30,13 @@ def action_features(action_path,cls_path,out_path):
     utils.to_labeled_file(out_path,labeled_vectors)
     return action_frame
 
+def splited_af(action_path,cls_path,out_path):
+    action_frame,cls=read_all(action_path,cls_path)
+    convert_actions(action_frame,cls)
+    extractor=series.curry_extractor(None)
+    data.save_splited(out_path,action_frame,extractor)
+    return action_frame
+
 def convert_actions(action_frame,cls):
     actions= action_frame['Action']
     return [action.to_time_series(cls) for action in actions]
@@ -52,11 +59,12 @@ def read_all(action_path,cls_path):
 
 if __name__ == "__main__":
     img_path="../imgs/"
-    cls_path="../nn/comp3"
+    cls_path="../nn/comp4_"
     ae_path="../nn/ae3"
     action_path="../large_/"
     out_path="../action_imgs/"
     #cls=create_cls(img_path,ae_path,cls_path)
     #af=action_features(action_path,cls_path,"../result/af.lb")
     #action_imgs(af,out_path)
-    apply_cls(action_path,cls_path,"../test2")
+    splited_af(action_path,cls_path,"../result/af.lb")
+    #apply_cls(action_path,cls_path,"../test2/")
