@@ -48,6 +48,9 @@ def make_dir(path):
     if(not os.path.isdir(path)):
 	os.system("mkdir "+path)
 
+def get_name(path):
+    return path.split("/")[-1]
+
 def array_to_txt(array):
     return reduce(lambda x,y:x+str(y),array,"")
 
@@ -96,9 +99,6 @@ def save_images(path,act_imgs):
 
 def save_img(path,img):
     full_path=path+".png"
-    #img/=np.amax(img)
-    #img*=100
-    #print(full_path)
     image.imsave(full_path,img)
 
 def unflat_images(flat_img,new_shape):
@@ -116,3 +116,6 @@ def to_labeled_file(path,labeled_vectors):
         line+="#"+str(cat)+"\n"
         lb+=line
     save_string(path,lb)
+
+def to_2D(img,dim=(80,40)):
+    return np.reshape(img,dim)
