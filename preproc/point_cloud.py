@@ -50,7 +50,6 @@ class PointCloud(object):
     	if(proj==None):
     		proj=ProjectionXZ()
     	img=proj.get_img(dim)
-    	print(img.shape)
     	for point in self.points:
     		proj.apply(point,img,True)
     	return img
@@ -59,6 +58,30 @@ class PointCloud2D(PointCloud):
     def __init__(self,points):
         PointCloud.__init__(self, points)
         self.point_dim=2
+
+    def to_img(self,dim):
+        img=np.zeros(dim)
+        points=self.int_points()
+        for point in points:
+            if(check_bound(point,dim)):
+                img[point[0]][point[1]]=100.0
+        return img
+
+    def int_points(self):
+        integer_points=[]
+        for p in self.points:
+            point_ceil=(np.ceil(p[0]),np.ceil(p[1]))
+            point_floor=(np.floor(p[0]),np.floor(p[1]))
+            integer_points.append(point_ceil)
+            integer_points.append(point_floor)
+        return integer_points
+
+def check_bound(p,dim):
+    if(p[0]<0 or p[1]<0):
+        return False
+    if(p[0]<dim[0] and p[1]<dim[1]):
+         return True    
+    return False
 
 def create_point_cloud(array,pc2D=False):
     width=array.shape[0]
