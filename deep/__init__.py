@@ -69,11 +69,8 @@ def compute_updates(loss, params, learning_rate=0.05):
 def get_sigmoid(x,w,b):
     return T.nnet.sigmoid(T.dot(x,w) + b)
 
-def learning_iter(img_frame,cls,
-                  n_epochs=250,batch_size=100,supervised=True):
-    X_b=img_frame['Images']
-    y_b=img_frame['Category']
-
+def learning_iter_super( cls,X_b,y_b=None,                                          
+                  n_epochs=250,batch_size=100):
     n_train_batches=get_number_of_batches(y_b,batch_size)#len(y_b)
     print '... training the model'
     timer = utils.Timer()
@@ -81,11 +78,25 @@ def learning_iter(img_frame,cls,
         c = []
         for batch_index in xrange(n_train_batches):
             x_i,y_i=get_batch(batch_index,X_b,y_b,batch_size)
-            #print(y_i.shape)
-            if(supervised):
-                c.append(cls.train(x_i,y_i))
-            else:
-                c.append(cls.train(x_i))
+            c.append(cls.train(x_i,y_i))
+        print 'Training epoch %d, cost ' % epoch, np.mean(c)
+
+    timer.stop()
+    print("Training time %d ",timer.total_time)
+    return cls
+
+def learning_iter_unsuper( cls,X_b,                                       
+                  n_epochs=250,batch_size=100):
+    dataset_size=len(X_b)
+    print(dataset_size)
+    n_train_batches=get_number_of_batches(dataset_size,batch_size)#len(y_b)
+    print '... training the model'
+    timer = utils.Timer()
+    for epoch in xrange(n_epochs):
+        c = []
+        for batch_index in xrange(n_train_batches):
+            x_i=get_batch(batch_index,X_b,batch_size)
+            c.append(cls.train(x_i))
         print 'Training epoch %d, cost ' % epoch, np.mean(c)
 
     timer.stop()
@@ -108,17 +119,15 @@ def check_prediction(img_frame,cls):
     print(acc)
     return acc
 
-def get_number_of_batches(dataset,batch_size):
-    n_batches=len(dataset)/batch_size
-    if((len(dataset) % batch_size) != 0):
+def get_number_of_batches(dataset_size,batch_size):
+    n_batches=dataset_size/batch_size
+    if((dataset_size % batch_size) != 0):
         n_batches+=1 
     return n_batches
 
-def get_batch(i,x,y,batch_size):
+def get_batch(i,x,batch_size):
     begin=i*batch_size
     end=(i+1)*batch_size
-    x_i=x[begin:end].tolist()
+    x_i=x[begin:end]#.tolist()
     x_i=np.array(x_i)
-    y_i=y[begin:end].tolist()
-    y_i=np.array(y_i)
-    return x_i,y_i
+    return x_i
