@@ -39,8 +39,9 @@ def read_image_frame(dir_path):
     cat_paths=utils.get_paths(dir_path,dirs=True)
     images=[]
     for cat,cat_path in enumerate(cat_paths):
-        cat_imgs=utils.get_paths(cat_path,dirs=True)
-        cat_imgs=[proj.read_img(img_path) for img_path in cat_imgs]
+        print(cat_path)
+        cat_imgs=utils.get_paths(cat_path,dirs=False)
+        cat_imgs=[(cat,read_img(img_path)) for img_path in cat_imgs]
         images+=cat_imgs
     return create_img_frame(images)
 
@@ -50,6 +51,9 @@ def create_img_frame(images):
     return  pd.DataFrame({ 'Images':flat_imgs,
                            'Category':labels,})
     
+def read_img(img_path):
+    img=proj.read_img(img_path)
+    return img.flatten()
 
 if __name__ == "__main__":
     action_path="../final_actions/"

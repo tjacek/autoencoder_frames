@@ -71,7 +71,6 @@ def get_sigmoid(x,w,b):
 
 def learning_iter_super( cls,X_b,y_b,                                          
                   n_epochs=250,batch_size=100):
-    print(type(y_b))
     n_train_batches=get_number_of_batches(len(y_b),batch_size)#len(y_b)
     print '... training the model'
     timer = utils.Timer()
