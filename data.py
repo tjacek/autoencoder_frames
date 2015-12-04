@@ -1,5 +1,6 @@
 import utils
 import preproc.projections as proj
+import pandas as pd
 
 class FinalAction(object):
     def __init__(self,name,frames,n_imgs=3):
@@ -33,6 +34,22 @@ def get_projections(i,actions):
 	for action in actions:
 		projections+=action.get_dim(i)
 	return projections
+
+def read_image_frame(dir_path):
+    cat_paths=utils.get_paths(dir_path,dirs=True)
+    images=[]
+    for cat,cat_path in enumerate(cat_paths):
+        cat_imgs=utils.get_paths(cat_path,dirs=True)
+        cat_imgs=[proj.read_img(img_path) for img_path in cat_imgs]
+        images+=cat_imgs
+    return create_img_frame(images)
+
+def create_img_frame(images):
+    labels=[ img[0] for img in images]
+    flat_imgs=[ img[1] for img in images]
+    return  pd.DataFrame({ 'Images':flat_imgs,
+                           'Category':labels,})
+    
 
 if __name__ == "__main__":
     action_path="../final_actions/"

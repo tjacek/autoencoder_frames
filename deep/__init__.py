@@ -69,15 +69,17 @@ def compute_updates(loss, params, learning_rate=0.05):
 def get_sigmoid(x,w,b):
     return T.nnet.sigmoid(T.dot(x,w) + b)
 
-def learning_iter_super( cls,X_b,y_b=None,                                          
+def learning_iter_super( cls,X_b,y_b,                                          
                   n_epochs=250,batch_size=100):
-    n_train_batches=get_number_of_batches(y_b,batch_size)#len(y_b)
+    print(type(y_b))
+    n_train_batches=get_number_of_batches(len(y_b),batch_size)#len(y_b)
     print '... training the model'
     timer = utils.Timer()
     for epoch in xrange(n_epochs):
         c = []
         for batch_index in xrange(n_train_batches):
-            x_i,y_i=get_batch(batch_index,X_b,y_b,batch_size)
+            x_i=get_batch(batch_index,X_b,batch_size)
+            y_i=get_batch(batch_index,y_b,batch_size)
             c.append(cls.train(x_i,y_i))
         print 'Training epoch %d, cost ' % epoch, np.mean(c)
 
