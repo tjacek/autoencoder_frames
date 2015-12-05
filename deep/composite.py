@@ -33,6 +33,24 @@ class CompositeModel(object):
         self.ae_model=ae_model
         self.nn_model=nn_model
 
+class ProjectionExtractor(object):
+    def __init__(self,xy,zx,zy):
+        self.xy=xy
+        self.zx=zx
+        self.zy=zy
+
+    def get_features(self,xy,zx,zy):
+        xy_feat=self.xy.get_features(xy)
+        zx_feat=self.zx.get_features(zx)
+        zy_feat=self.zy.get_features(zy)
+        feat=xy_feat+zx_feat+zy_feat
+        return feat
+
+def read_proj_extr(in_path):
+    paths=[in_path+pf for pf in ['xy','zx','zy']]
+    cls=[read_composite(cls_path) for cls_path in paths]
+    return ProjectionExtractor(cls[0],cls[1],cls[2])
+
 def create_extractor(n_cats,ae_path,n=800):
     ae=autoencoder.read_autoencoder(ae_path)
     hyper_params=nn.get_hyper_params(n_cats,500)
