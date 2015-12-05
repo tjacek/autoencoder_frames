@@ -46,10 +46,19 @@ class ProjectionExtractor(object):
         feat=xy_feat+zx_feat+zy_feat
         return feat
 
+    def get_cls(self):
+        return [self.xy,self.zx,self.zy]
+
 def read_proj_extr(in_path):
     paths=[in_path+pf for pf in ['xy','zx','zy']]
     cls=[read_composite(cls_path) for cls_path in paths]
     return ProjectionExtractor(cls[0],cls[1],cls[2])
+
+def save_proj_extr(extr,out_path):
+    paths=[out_path+pf for pf in ['xy','zx','zy']]
+    utils.make_dir(out_path)
+    clas=extr.get_cls()
+    [save_composite(cls,path) for cls,path in zip(clas,paths)]
 
 def create_extractor(n_cats,ae_path,n=800):
     ae=autoencoder.read_autoencoder(ae_path)
@@ -63,3 +72,6 @@ def read_composite(cls_path):
     ae=autoencoder.init_autoencoder(model.ae_model,rand)
     cls_nn=nn.init_nn(5,model.nn_model)
     return FeatureExtractor(ae,cls_nn)
+
+def save_composite(cls,out_path):
+    utils.save_object(cls.get_model(),out_path)
