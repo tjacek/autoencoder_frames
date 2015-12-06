@@ -4,6 +4,7 @@ import pandas as pd
 import deep.composite as comp
 import data
 import matplotlib.pyplot as plt
+import re
 
 def to_action_frame(extr,actions):
     td=[action_time_series(extr,act) for act in actions]
@@ -16,6 +17,27 @@ def action_time_series(extr,action):
     feat=[extr.get_features(fr[0],fr[1],fr[2]) for fr in action.frames]
     feat=np.array(feat)
     return (create_time_series(feat),str(action))
+
+def action_features(action_frame,out_path):
+    t_series=action_frame['td']
+    names=action_frame['names']
+    #utils.make_dir(out_path)
+    features=[(get_vector(td),name) for td,name in zip(t_series,names)]
+    features=[(vec,extract_info(name,0)) for vec,name in features]
+    utils.to_labeled_file(out_path,features)
+
+def get_vector(t_series):    
+    t_series=get_time_series(t_series)
+    features=[td.mean() for td in t_series]
+    return features
+
+def extract_info(action_name,i):
+    info=action_name.split("_")[i]
+    info=re.sub(r"[a-zA-Z]","",info)
+    return int(info)
+
+def get_time_series(time_series):
+	return  [time_series[col_i] for col_i in time_series]
 
 def visualize_actions(action_frame,out_path):
     t_series=action_frame['td']
@@ -47,8 +69,10 @@ def read_all(action_path,cls_path):
 if __name__ == "__main__":
     action_path="../final_actions/"
     cls_path="../nn/cls/"
-    out_path="../plots"
+    plot_path="../plots"
+    out_path="../result/dataset"
     actions=data.read_actions(action_path)
     extr=comp.read_proj_extr(cls_path)
     af=to_action_frame(extr,actions)
-    visualize_actions(af,out_path)
+    action_features(af,out_path)
+    #visualize_actions(af,out_path)
