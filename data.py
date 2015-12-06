@@ -13,6 +13,9 @@ class FinalAction(object):
     	assert i<self.n_imgs
     	return [frame.imgs[i] for frame in self.frames]
 
+    def __str__(self):
+        return self.name
+        
 class FinalFrame(object):
     def __init__(self,imgs):
     	self.n_imgs=len(imgs)
