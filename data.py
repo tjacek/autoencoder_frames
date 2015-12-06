@@ -1,4 +1,5 @@
 import utils
+import numpy as np
 import preproc.projections as proj
 import pandas as pd
 
@@ -16,6 +17,11 @@ class FinalFrame(object):
     def __init__(self,imgs):
     	self.n_imgs=len(imgs)
         self.imgs=[img.flatten() for img in imgs]
+
+    def __getitem__(self,index):
+        img=self.imgs[index]
+        img=np.reshape(img,(1,img.size))
+        return img
 
 def read_actions(dir_path):
     actions_paths=utils.get_dirs(dir_path)
