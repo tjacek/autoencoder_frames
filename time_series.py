@@ -27,8 +27,10 @@ def action_features(action_frame,out_path):
     utils.to_labeled_file(out_path,features)
 
 def get_vector(t_series):    
-    t_series=get_time_series(t_series)
-    features=[td.mean() for td in t_series]
+    t_series_list=get_time_series(t_series)
+    means=[td.mean() for td in t_series_list]
+    corel=cross_corel_extr(t_series)
+    features=corel+means
     return features
 
 def extract_info(action_name,i):
@@ -65,6 +67,11 @@ def read_all(action_path,cls_path):
     actions=data.read_actions(action_path)
     extr=comp.read_proj_extr(cls_path)
     return actions,extr
+
+def cross_corel_extr(time_series):
+    result=time_series.corr()
+    corel=result.values.flatten()
+    return corel.tolist()
 
 if __name__ == "__main__":
     action_path="../final_actions/"
