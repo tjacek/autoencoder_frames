@@ -9,21 +9,30 @@ import re
 def to_action_frame(extr,actions):
     td=[action_time_series(extr,act) for act in actions]
     time_series=[td_i[0] for td_i in td]
-    names=[td_i[1] for td_i in td]
-    return pd.DataFrame({'td':time_series,'names':names})
+    category=[td_i[1] for td_i in td]
+    person=[td_i[2] for td_i in td]
+    return pd.DataFrame({'td':time_series,'cat':category,'person':person})
+
+def splited_dataset(action_frame,out_path):
+    odd=action_frame[action_frame['person']==0]
+    even=action_frame[action_frame['person']==1]
+    action_features(odd,out_path+"_train")
+    action_features(even,out_path+"_test")
 
 def action_time_series(extr,action):
     print(action)
     feat=[extr.get_features(fr[0],fr[1],fr[2]) for fr in action.frames]
     feat=np.array(feat)
-    return (create_time_series(feat),str(action))
+    name=str(action)
+    category=extract_info(name,0)
+    person=extract_info(name,1) % 2
+    return (create_time_series(feat),category,person)
 
 def action_features(action_frame,out_path):
     t_series=action_frame['td']
-    names=action_frame['names']
+    cats=action_frame['cat']
     #utils.make_dir(out_path)
-    features=[(get_vector(td),name) for td,name in zip(t_series,names)]
-    features=[(vec,extract_info(name,0)) for vec,name in features]
+    features=[(get_vector(td),name) for td,name in zip(t_series,cats)]
     utils.to_labeled_file(out_path,features)
 
 def get_vector(t_series):    
@@ -81,5 +90,6 @@ if __name__ == "__main__":
     actions=data.read_actions(action_path)
     extr=comp.read_proj_extr(cls_path)
     af=to_action_frame(extr,actions)
-    action_features(af,out_path)
+    #action_features(af,out_path)
+    splited_dataset(af,out_path)
     #visualize_actions(af,out_path)
