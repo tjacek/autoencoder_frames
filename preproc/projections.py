@@ -2,12 +2,17 @@ import utils
 import numpy as np
 import scipy.misc as image
 import point_cloud as pc
+import cv2
 
 DIRS=['xy/','zx/','zy/']
 
 class ProjectionAction(object):
     def __init__(self,frames):
         self.frames = frames
+
+    def smooth(self):
+        for frame in self.frames:
+            frame.smooth()
 
     def scaled_action(self):
         scaled_frames=[frame.scaled_frame() for frame in self.frames]
@@ -25,14 +30,13 @@ class ProjectionFrame(object):
     def __init__(self,projections):
         self.projections=projections   
 
+    def smooth(self):
+        self.projections[1]=smooth_img(self.projections[1])
+        self.projections[2]=smooth_img(self.projections[2])
+
     def scaled_frame(self):
-        start_dims=[proj.shape for proj in self.projections]
-        end_dims=[(60,60),(60,60),(60,60)]
-        new_dims=[new_dim(d0,d1) for d0,d1 in zip(start_dims,end_dims)]    
-        p_clouds=[pc.create_point_cloud(img,True) for img in self.projections]
-        for p_cloud,dim in zip(p_clouds,new_dims):
-            p_cloud.rescale(dim) 
-        projections=[p_cloud.to_img(dim) for p_cloud,dim in zip(p_clouds,end_dims)]
+        projections=[scale_3D(self.projections[0])]
+        projections+=scale_2D(self.projections[1:3])
         return ProjectionFrame(projections)
 
     def save(self,path,name):
@@ -43,10 +47,36 @@ class ProjectionFrame(object):
             print(full_path)
             utils.save_img(full_path,proj)
 
-def new_dim(d0,d1):
-    x=float(d0[0])/float(d1[0])
-    y=float(d0[1])/float(d1[1])
-    return (x,y)
+def scale_3D(img3D):
+    p_cloud=pc.create_point_cloud(img3D,False)
+    start_dims=p_cloud.find_max()
+    end_dims=(60,60,60)
+    new_dims=new_dim(start_dims,end_dims)
+    p_cloud.rescale(new_dims)
+    return p_cloud.to_scaled_img(end_dims)
+
+def scale_2D(imgs2D):
+    start_dims=[img.shape for img in imgs2D]
+    end_dims=[(60,60) for img in imgs2D]
+    new_dims=[new_dim(d0,d1) for d0,d1 in zip(start_dims,end_dims)]
+    p_clouds=[pc.create_point_cloud(img,True) for img in imgs2D]
+    for p_cloud,dim in zip(p_clouds,new_dims):
+        p_cloud.rescale(dim) 
+    projections=[p_cloud.to_img(dim) for p_cloud,dim in zip(p_clouds,end_dims)]
+    return projections
+
+def new_dim(dx,dy):
+    new_dim=[float(x_i)/float(y_i) for x_i,y_i in zip(dx,dy)]
+    return tuple(new_dim)
+
+def smooth_img(img):
+    print(img.shape)
+    kern=np.ones((5,5),np.float32) #/64.0
+    #img=img*100
+    img=cv2.filter2D(img,-1,kern)
+    img=img.astype(np.uint8)
+    img=cv2.threshold(img,0,255,cv2.THRESH_BINARY)[1]
+    return img
 
 def read_img_action(path):
     names=utils.get_files(path+"xy/")
@@ -65,7 +95,7 @@ def read_projection_frame(frame_path,name,normal=True):
 def read_img(path):
     img=image.imread(path)
     img=img.astype(float)
-    img=img/255.0
+    img=img#/255.0
     return img
 
 if __name__ == "__main__":

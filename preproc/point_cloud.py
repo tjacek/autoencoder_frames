@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 
 class PointCloud(object):
     def __init__(self, points):
@@ -51,8 +52,16 @@ class PointCloud(object):
     		proj=ProjectionXZ()
     	img=proj.get_img(dim)
     	for point in self.points:
-    		proj.apply(point,img,True)
+    		proj.apply(point,img)
     	return img
+
+    def to_scaled_img(self,dim):
+        img=np.zeros((dim[0],dim[1]))
+        for p in self.points:
+            p_i=int_point(p)
+            if(check_bound(p_i,dim)):
+                img[p_i[0]][p_i[1]]=p_i[2]
+        return img 
 
 class PointCloud2D(PointCloud):
     def __init__(self,points):
@@ -75,6 +84,9 @@ class PointCloud2D(PointCloud):
             integer_points.append(point_ceil)
             integer_points.append(point_floor)
         return integer_points
+
+def int_point(point):
+    return [int(p_i) for p_i in point ]
 
 def check_bound(p,dim):
     if(p[0]<0 or p[1]<0):
@@ -115,14 +127,14 @@ class ProjectionXY(object):
         img_dim=(dim[0]+1,dim[1]+1)
         return np.zeros(img_dim)
 
-    def apply(self,point,img,binary=True):
+    def apply(self,point,img,binary=False):
         x,y,z=point
         x=int(x)
         y=int(y)
         if(binary):
             img[x][y]=100
         else:
-            img[x][y]=z
+            img[x][y]=255-z
 
 class ProjectionXZ(object):
     def get_img(self,dim):
