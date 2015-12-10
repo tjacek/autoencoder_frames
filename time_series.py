@@ -35,11 +35,22 @@ def action_features(action_frame,out_path):
     features=[(get_vector(td),name) for td,name in zip(t_series,cats)]
     utils.to_labeled_file(out_path,features)
 
+def strict_vector(t_series):
+    arr=np.array(t_series)
+    hist=np.zeros(arr.shape[1])
+    hist=hist.astype(float)
+    for i in range(arr.shape[0]):
+        cat=np.argmax(arr[i])
+        print(cat)
+        hist[cat]+=1.0
+    hist/=float(arr.shape[0])
+    return list(hist)
+
 def get_vector(t_series):    
     t_series_list=get_time_series(t_series)
-    means=[td.mean() for td in t_series_list]
+    #means=[td.mean() for td in t_series_list]
     corel=cross_corel_extr(t_series)
-    features=corel+means
+    features=strict_vector(t_series)+corel
     return features
 
 def extract_info(action_name,i):
@@ -83,13 +94,13 @@ def cross_corel_extr(time_series):
     return corel.tolist()
 
 if __name__ == "__main__":
-    action_path="../final_actions/"
-    cls_path="../nn/cls/"
+    action_path="../old/final_actions/"
+    cls_path="../old/nn/cls/"
     plot_path="../plots"
     out_path="../result/dataset"
     actions=data.read_actions(action_path)
     extr=comp.read_proj_extr(cls_path)
     af=to_action_frame(extr,actions)
-    #action_features(af,out_path)
-    splited_dataset(af,out_path)
+    action_features(af,out_path)
+    #splited_dataset(af,out_path)
     #visualize_actions(af,out_path)
