@@ -46,7 +46,7 @@ def is_file(f,path):
 
 def make_dir(path):
     if(not os.path.isdir(path)):
-	os.system("mkdir "+path)
+        os.system("mkdir "+path)
 
 def get_name(path):
     return path.split("/")[-1]
@@ -111,11 +111,21 @@ def to_labeled_file(path,labeled_vectors):
     lb=""
     for instance,cat in labeled_vectors:
         line=""
+        #instance
         for cord_i in instance:
-            line+=str(cord_i)+","
+            cord_i=round(cord_i,2)
+            cord_i=str(cord_i)
+            if(len(cord_i)==3):
+                cord_i+="0"
+            line+=cord_i+","
         line+="#"+str(cat)+"\n"
         lb+=line
     save_string(path,lb)
 
 def to_2D(img,dim=(80,40)):
     return np.reshape(img,dim)
+
+def read_dir_objects(obj_path):
+    obj_files=get_files(obj_path)
+    obj_files=append_path(obj_path,obj_files)
+    return [read_object(obj_path) for obj_path in obj_files] 

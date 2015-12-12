@@ -2,8 +2,8 @@ import utils
 import numpy as np
 import pandas as pd
 import deep.composite as comp
+import features
 import data
-import matplotlib.pyplot as plt
 import re
 
 class ActionTimeSeries(object):
@@ -12,7 +12,15 @@ class ActionTimeSeries(object):
         self.cat=cat
         self.person=person
         self.t_series=t_series
+        self.dim=len(self.t_series[0])
 
+    def to_array(self):
+        arrays=[]
+        for i in range(self.dim):
+            dim_i=[t_j[i].flatten() for t_j in self.t_series]
+            arrays.append(np.array(dim_i))
+        return arrays
+        
 def create_time_series(action_path,cls_path,out_path):
     actions=data.read_actions(action_path)
     extractor=comp.read_proj_extr(cls_path)
@@ -38,5 +46,7 @@ def extract_info(action_name,i):
 if __name__ == "__main__":
     action_path="../_final_actions/"
     cls_path="../nn/cls/"
-    out_path="../_time_series"
-    create_time_series(action_path,cls_path,out_path)    
+    series_path="../_time_series/"
+    dataset_path="../result/dataset"
+    create_time_series(action_path,cls_path,series_path)
+    features.extract_features(series_path,dataset_path)
