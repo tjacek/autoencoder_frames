@@ -12,11 +12,18 @@ def category_count(action):
     return np.concatenate(raw_count),action.cat
 
 def category_histogram(arr):
-    print(arr.shape)
-    hist=np.zeros(arr.shape[1])
+    dim=arr.shape[1]
+    hist=np.zeros(dim)
     hist=hist.astype(float)
-    for i in range(arr.shape[0]):
-        cat=np.argmax(arr[i])
-        hist[cat]+=1.0
+    cat_series=category_series(arr)
+    for cat_i in cat_series:    
+        hist[cat_i]+=1.0
     hist/=float(arr.shape[0])
     return list(hist)
+
+def category_series(arr):
+    size=arr.shape[0]
+    cat_series=np.zeros(size)
+    for i in range(size):
+        cat_series[i]=np.argmax(arr[i])
+    return cat_series
