@@ -3,8 +3,10 @@ import numpy as np
 import pandas as pd
 import deep.composite as comp
 import features
+import features.indicator as ind
 import data
 import re
+import ConfigParser
 
 class ActionTimeSeries(object):
     def __init__(self,name,cat,person,t_series):
@@ -23,7 +25,7 @@ class ActionTimeSeries(object):
         
 def create_time_series(action_path,cls_path,out_path):
     actions=data.read_actions(action_path)
-    extractor=comp.read_proj_extr(cls_path)
+    extractor=comp.read_composite(cls_path)
     all_t_series=[make_action_ts(extractor,action) for action in actions]
     utils.make_dir(out_path)
     for action_ts in all_t_series:
@@ -31,7 +33,7 @@ def create_time_series(action_path,cls_path,out_path):
         utils.save_object(action_ts,full_path)
 
 def make_action_ts(extractor,action):
-    t_series=[extractor.get_features(fr[0],fr[1],fr[2]) for fr in action.frames]
+    t_series=[extractor.get_features(fr[0]) for fr in action.frames]
     name=action.name
     name=name.replace(".img","")
     category=extract_info(name,0)
@@ -44,9 +46,14 @@ def extract_info(action_name,i):
     return int(info)
 
 if __name__ == "__main__":
-    action_path="../_final_actions/"
-    cls_path="../nn/cls/"
-    series_path="../_time_series/"
-    dataset_path="../result/dataset"
-    create_time_series(action_path,cls_path,series_path)
-    features.extract_features(series_path,dataset_path)
+    config_path="../cascade/config/hard.cfg"
+    config = ConfigParser.ConfigParser()
+    config.read(config_path)
+    conf=config.items("Extract")
+    conf=dict([ list(pair_i) for pair_i in conf]) 
+    create_time_series(conf['action'],conf['cls_ts'],conf['series'])
+    if(bool(conf['indicator'])):    
+        ind.extract_indicator_features(conf['series'],conf['dataset'])
+    else:
+        features.extract_features(conf['series'],conf['dataset'])
+    features.make_sequences(conf['series'],conf['seq'],0)
