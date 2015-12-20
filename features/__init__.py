@@ -7,22 +7,26 @@ def extract_features(in_path,out_path):
     action_t_series=utils.read_dir_objects(in_path)
     features=[category_count(action) for action in action_t_series]
     utils.to_labeled_file(out_path,features)
+    print(features)
 
 def category_count(action):
     arrays=action.to_array()
-    raw_count=[category_histogram(arr_i) for arr_i in arrays]
-    return np.concatenate(raw_count),action.cat
+    raw_count=[category_histogram_(arr_i) for arr_i in arrays]
+    return np.concatenate(raw_count),str(action.cat)+"#"+str(action.person)
 
-def category_histogram(arr):
-    dim=arr.shape[1]
+def category_histogram(dim,cat_series):
     hist=np.zeros(dim)
     hist=hist.astype(float)
-    cat_series=category_series(arr)
-    print(cats_to_seq(cat_series))
+    print(type(cat_series))
     for cat_i in cat_series:    
         hist[cat_i]+=1.0
-    hist/=float(arr.shape[0])
+    hist/=float(cat_series.size)
     return list(hist)
+
+def category_histogram_(arr):
+    dim=arr.shape[1]
+    cat_series=category_series(arr)
+    return category_histogram(dim,cat_series)
 
 def category_series(arr):
     size=arr.shape[0]
@@ -31,14 +35,15 @@ def category_series(arr):
         cat_series[i]=np.argmax(arr[i])
     return cat_series
 
-def make_sequences(in_path,out_path):
+def make_sequences(in_path,out_path,dim=0):
     action_t_series=utils.read_dir_objects(in_path)
     sequences=[]
     for action in action_t_series:
-        arr=action.to_array()[0]
+        arr=action.to_array()[dim]
         cat_series=category_series(arr)
         seq=cats_to_seq(cat_series)
-        seq+="#"+str(action.cat)+"\n"
+        seq+="#"+str(action.cat)
+        seq+="#"+action.name +"\n"
         sequences.append(seq)
     str_seq=utils.array_to_txt(sequences)
     utils.save_string(out_path,str_seq)
