@@ -1,3 +1,9 @@
+import numpy as np
+import theano
+import theano.tensor as T
+import deep
+
+
 class SdA(object):
  	def __init__(self, ae_layer,hidden,logistic):
  		self.model = SdaModel(ae_layer,hidden,logistic)
@@ -21,4 +27,11 @@ class SdaModel(object):
         self.logistic=logistic
         
     def get_params(self):
-        return self.hidden.get_params() + self.logistic.get_params()	 
+        params=self.ae_layer.get_params()
+        params+=self.hidden.get_params()
+        params+=self.logistic.get_params()  
+        return params  
+
+def create_nn_fun(free_vars,model,hyper_params):
+
+    return train,test,prob_dist
