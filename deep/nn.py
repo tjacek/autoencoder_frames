@@ -2,6 +2,7 @@ import numpy as np
 import theano
 import theano.tensor as T
 import deep
+import autoencoder
 
 class MlpModel(object):
     def __init__(self,hidden,logistic):
@@ -14,8 +15,8 @@ class MlpModel(object):
 def built_nn_cls(n_cats,hyper_params=None):
     if(hyper_params==None):
         hyper_params=get_hyper_params(n_cats)
-    free_vars=deep.LabeledImages()
     model= create_mlp_model(hyper_params)
+    free_vars=deep.LabeledImages()
     train,test,prob_dist=create_nn_fun(free_vars,model,hyper_params)
     return deep.Classifier(free_vars,model,train,test,prob_dist)
 
@@ -57,7 +58,7 @@ def get_px_y(free_vars,model):
 def get_loss_function(free_vars,py_x):
     return T.mean(T.nnet.categorical_crossentropy(py_x,free_vars.y))
 
-def get_hyper_params(n_cats=5,n_in=3200,learning_rate=0.05):
+def get_hyper_params(n_cats=2,n_in=3600,learning_rate=0.05):
     params={'learning_rate': learning_rate,
-            'n_in':n_in,'n_out':n_cats,'n_hidden':900}
+            'n_in':n_in,'n_out':n_cats,'n_hidden':300}
     return params
