@@ -3,6 +3,7 @@ import theano
 import theano.tensor as T
 import deep
 import autoencoder
+import tools
 
 class MlpModel(object):
     def __init__(self,hidden,logistic):
@@ -34,19 +35,8 @@ def create_mlp_model(hyper_params):
 def create_nn_fun(free_vars,model,hyper_params):
     learning_rate=hyper_params['learning_rate']
     py_x=get_px_y(free_vars,model)
-    loss=get_loss_function(free_vars,py_x)
-    input_vars=free_vars.get_vars()
-    params=model.get_params()
-    update=deep.compute_updates(loss, params, learning_rate)
-    train = theano.function(inputs=input_vars, 
-                                outputs=loss, updates=update, 
-                                allow_input_downcast=True)
-    y_pred = T.argmax(py_x, axis=1)
-    prob_dist=theano.function(inputs=[free_vars.X], outputs=py_x, 
-            allow_input_downcast=True) 
-    test=theano.function(inputs=[free_vars.X], outputs=y_pred, 
-            allow_input_downcast=True) 
-    return train,test,prob_dist
+    loss=tools.get_loss_function(free_vars,py_x)
+    return tools.construct_functions(free_vars,model,py_x,loss,learning_rate)
 
 def get_px_y(free_vars,model):
     hidden=model.hidden
