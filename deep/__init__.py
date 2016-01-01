@@ -9,6 +9,10 @@ class LayerModel(object):
         self.W=W
         self.b=b
 
+    def init_params(self,W_init,b_init):
+        self.W.set_value(W_init, borrow=True)
+        self.b.set_value(b_init, borrow=True)         
+
     def get_params(self):
         return [self.W,self.b] 
 
@@ -73,6 +77,7 @@ def learning_iter_super( cls,X_b,y_b,
                   n_epochs=250,batch_size=100):
     n_train_batches=get_number_of_batches(len(y_b),batch_size)#len(y_b)
     print '... training the model'
+    print(type(cls))
     timer = utils.Timer()
     for epoch in xrange(n_epochs):
         c = []
@@ -92,6 +97,7 @@ def learning_iter_unsuper( cls,X_b,
     print(dataset_size)
     n_train_batches=get_number_of_batches(dataset_size,batch_size)#len(y_b)
     print '... training the model'
+    print(type(cls))
     timer = utils.Timer()
     for epoch in xrange(n_epochs):
         c = []

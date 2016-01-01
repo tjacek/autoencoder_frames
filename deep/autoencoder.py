@@ -24,18 +24,26 @@ class AutoEncoder(object):
         self.get_image=get_image
         self.rand=rand
 
+    def get_numpy(self):
+        W=self.model.W.get_value()
+        b=self.model.b.get_value()
+        return W,b
+
 def built_ae_cls():
     hyper_params=get_hyper_params()
-    free_vars=deep.LabeledImages()
     model,rand= create_ae_model(hyper_params)
-    train,test,get_image=create_ae_fun(free_vars,model,rand,hyper_params)
-    return AutoEncoder(free_vars,model,train,test,get_image,rand)
+    return init_autoencoder(model,rand,hyper_params)
 
 def read_autoencoder(cls_path):
-    model=utils.read_object(cls_path)
     hyper_params=get_hyper_params()
-    free_vars=deep.LabeledImages()
+    model=utils.read_object(cls_path)
     rand=deep.RandomNum()
+    return init_autoencoder(model,rand)
+
+def init_autoencoder(model,rand,hyper_params=None):
+    if(hyper_params==None):
+        hyper_params=get_hyper_params()
+    free_vars=deep.LabeledImages()
     train,test,get_image=create_ae_fun(free_vars,model,rand,hyper_params)
     return AutoEncoder(free_vars,model,train,test,get_image,rand)
 
@@ -58,7 +66,7 @@ def create_ae_fun(free_vars,model,rand,hyper_params):
     x=free_vars.X
     y = get_hidden_values(model,tilde_x)
     z = get_reconstructed_input(model,y)
-    loss=get_crossentropy_loss(x,y,z)
+    loss= get_l2_loss(x,z)
     input_vars=free_vars.get_vars()
     params=model.get_params()
     updates=deep.compute_updates(loss, params, learning_rate)
@@ -69,6 +77,10 @@ def create_ae_fun(free_vars,model,rand,hyper_params):
 
 def get_crossentropy_loss(x,y,z):
     L = - T.sum(x * T.log(z) + (1 - x) * T.log(1 - z), axis=1)
+    return T.mean(L)
+
+def get_l2_loss(x,z):
+    L = T.sqrt(T.sum( (x-z)*(x-z), axis=1))
     return T.mean(L)
 
 def get_corrupted_input(free_vars,corruption_level,rand):
@@ -83,9 +95,9 @@ def get_hidden_values(model, x):
 def get_reconstructed_input(model,hidden):
     return deep.get_sigmoid(hidden,model.W_prime,model.b_prime)
 
-def get_hyper_params(learning_rate=0.05):
+def get_hyper_params(learning_rate=0.1):
     params={'learning_rate': learning_rate,'corruption_level':0,
-            'n_visible':3200,'n_hidden':1600}
+            'n_visible':3600,'n_hidden':600}
     return params
 
 def reconstruct_images(img_frame,ae,out_path):
@@ -95,6 +107,7 @@ def reconstruct_images(img_frame,ae,out_path):
     for i,img in enumerate(imgs):
         img=np.reshape(img,(1,3200))
         rec_image=ae.get_image(img)
+        rec_image*=200
         img2D=np.reshape(rec_image,(80,40))
         img_path=out_path+"img"+str(i)+".png"
         print(img_path)

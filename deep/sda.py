@@ -11,7 +11,11 @@ class SdaModel(object):
     	self.ae_layer=ae_layer
         self.hidden=hidden
         self.logistic=logistic
-        
+    
+    def set_pretrain_params(autoencoder):
+        values=a
+        pass
+
     def get_params(self):
         params=self.ae_layer.get_params()
         params+=self.hidden.get_params()
@@ -32,11 +36,14 @@ def create_sda_model(hyper_params):
     n_ae=hyper_params['n_ae']
     n_hidden=hyper_params['n_hidden']
     n_out=hyper_params['n_out']
-    #ae=autoencoder.read_autoencoder(ae_path)
+    ae_path=hyper_params['ae_path']
+    ae_pretrain=autoencoder.read_autoencoder(ae_path)
     rand=deep.RandomNum()
     ae_layer=deep.create_layer((n_in,n_ae),rand,"_ae")
     hidden=deep.create_layer((n_ae,n_hidden),rand,"_hidden")
     logistic=deep.create_layer((n_hidden,n_out),rand,"_vis")
+    W_init,b_init=ae_pretrain.get_numpy()
+    ae_layer.init_params(W_init,b_init)
     return SdaModel(ae_layer,hidden,logistic)
 
 def create_nn_fun(free_vars,model,hyper_params):
@@ -55,6 +62,6 @@ def get_px_y(free_vars,model):
     return pyx
 
 def get_hyper_params(n_cats=2,n_in=3600,learning_rate=0.05):
-    params={'learning_rate': learning_rate,'ae_path':"placeholder",
+    params={'learning_rate': learning_rate,'ae_path':"../cascade/nn/ae/xy",
             'n_in':n_in,'n_ae':600,'n_hidden':300,'n_out':n_cats}
     return params
