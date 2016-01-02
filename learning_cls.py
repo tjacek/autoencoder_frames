@@ -5,22 +5,22 @@ import deep.composite as comp
 import utils
 import deep.sda as sda
 import ConfigParser
+import deep.tools as tools
 
-
-def create_sda(in_path,ae_path,out_path):
+def create_sda(in_path,ae_path,out_path,cls_config_path):
     imgs=data.read_image_frame(in_path)
-    n_cats=4
     X=imgs['Images'].tolist()
     y=imgs['Category'].tolist()
     n_cats=max(y)+1
-    cls=sda.built_sda_cls(n_cats,ae_path) #comp.create_extractor(n_cats,ae_path)
+    hyper_params=tools.read_hyper_params(cls_config_path)
+    hyper_params['n_out']=n_cats
+    cls=sda.built_sda_cls(n_cats,ae_path,hyper_params) #comp.create_extractor(n_cats,ae_path)
     deep.learning_iter_super(cls,X,y,n_epochs=1000)
-    utils.save_object(cls.get_model(),out_path) 
+    utils.save_object(cls.model,out_path) 
     return cls
 
 def create_cls(in_path,ae_path,out_path):
     imgs=data.read_image_frame(in_path)
-    n_cats=4
     X=imgs['Images'].tolist()
     y=imgs['Category'].tolist()
     n_cats=max(y)+1
@@ -40,8 +40,9 @@ def create_proj_cls(in_path,ae_path,out_path):
 
 if __name__ == "__main__":
     config_path="../cascade/config/hand.cfg"
+    cls_config_path="../cascade2/cls_config/xy"
     config = ConfigParser.ConfigParser()
     config.read(config_path)
     dict_conf=config.items("Cls")
     dict_conf=dict([ list(pair_i) for pair_i in dict_conf]) 
-    create_sda(dict_conf['data'],dict_conf['ae'],dict_conf['cls'])
+    create_sda(dict_conf['data'],dict_conf['ae'],dict_conf['cls'],cls_config_path)
