@@ -5,16 +5,13 @@ import deep
 import autoencoder
 import nn
 import tools
+import utils
 
 class SdaModel(object):
     def __init__(self,ae_layer,hidden,logistic):
     	self.ae_layer=ae_layer
         self.hidden=hidden
         self.logistic=logistic
-    
-    def set_pretrain_params(autoencoder):
-        values=a
-        pass
 
     def get_params(self):
         params=self.ae_layer.get_params()
@@ -22,10 +19,14 @@ class SdaModel(object):
         params+=self.logistic.get_params()  
         return params  
 
-def built_sda_cls(n_cats,ae_path,hyper_params=None):
-    if(hyper_params==None):
-        hyper_params=get_hyper_params(n_cats)
-        hyper_params['ae_path']=ae_path
+def read_sda(sda_path,conf_path):
+    model=utils.read_object(sda_path)
+    free_vars=deep.LabeledImages()
+    hyper_params=tools.read_hyper_params(conf_path)
+    train,test,prob_dist=create_nn_fun(free_vars,model,hyper_params)
+    return deep.Classifier(free_vars,model,train,test,prob_dist)
+
+def built_sda_cls(hyper_params):
     model= create_sda_model(hyper_params)
     free_vars=deep.LabeledImages()
     train,test,prob_dist=create_nn_fun(free_vars,model,hyper_params)
@@ -60,8 +61,3 @@ def get_px_y(free_vars,model):
     h = T.nnet.sigmoid(T.dot(auto, hidden.W) + hidden.b)
     pyx = T.nnet.softmax(T.dot(h, output_layer.W) + output_layer.b)
     return pyx
-
-def get_hyper_params(n_cats=2,n_in=3600,learning_rate=0.05):
-    params={'learning_rate': learning_rate,'ae_path':"../cascade/nn/ae/xy",
-            'n_in':n_in,'n_ae':600,'n_hidden':300,'n_out':n_cats}
-    return params
