@@ -13,9 +13,7 @@ class MlpModel(object):
     def get_params(self):
         return self.hidden.get_params() + self.logistic.get_params()
 
-def built_nn_cls(n_cats,hyper_params=None):
-    if(hyper_params==None):
-        hyper_params=get_hyper_params(n_cats)
+def built_nn_cls(hyper_params):
     model= create_mlp_model(hyper_params)
     free_vars=deep.LabeledImages()
     train,test,prob_dist=create_nn_fun(free_vars,model,hyper_params)
@@ -44,11 +42,3 @@ def get_px_y(free_vars,model):
     h = T.nnet.sigmoid(T.dot(free_vars.X, hidden.W) + hidden.b)
     pyx = T.nnet.softmax(T.dot(h, output_layer.W) + output_layer.b)
     return pyx
-
-def get_loss_function(free_vars,py_x):
-    return T.mean(T.nnet.categorical_crossentropy(py_x,free_vars.y))
-
-def get_hyper_params(n_cats=2,n_in=3600,learning_rate=0.05):
-    params={'learning_rate': learning_rate,
-            'n_in':n_in,'n_out':n_cats,'n_hidden':300}
-    return params
