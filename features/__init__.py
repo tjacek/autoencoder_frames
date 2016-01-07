@@ -7,7 +7,6 @@ def extract_features(in_path,out_path):
     action_t_series=utils.read_dir_objects(in_path)
     features=[category_count(action) for action in action_t_series]
     utils.to_labeled_file(out_path,features)
-    print(features)
 
 def category_count(action):
     arrays=action.to_array()
@@ -32,8 +31,15 @@ def category_series(arr):
     size=arr.shape[0]
     cat_series=np.zeros(size)
     for i in range(size):
-        cat_series[i]=np.argmax(arr[i])
+        cat_series[i]= robust_category(arr[i]) #np.argmax(arr[i])
     return cat_series
+
+def robust_category(prob_vector):
+    print("OK")
+    max_prob=prob_vector.max()
+    if(prob_vector.max()>0.70):
+        return np.where(prob_vector==max_prob)[0] 
+    return 0
 
 def make_sequences(in_path,out_path,dim=0):
     action_t_series=utils.read_dir_objects(in_path)
