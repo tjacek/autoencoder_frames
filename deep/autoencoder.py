@@ -3,6 +3,7 @@ import theano
 import theano.tensor as T
 import deep,utils
 import scipy.misc
+import tools
 
 class AutoencoderModel(object):
     def __init__(self,W,b,b_prime):
@@ -66,7 +67,7 @@ def create_ae_fun(free_vars,model,rand,hyper_params):
     x=free_vars.X
     y = get_hidden_values(model,tilde_x)
     z = get_reconstructed_input(model,y)
-    loss= get_l2_loss(x,z)
+    loss= tools.get_l2_loss(x,z)
     input_vars=free_vars.get_vars()
     params=model.get_params()
     updates=deep.compute_updates(loss, params, learning_rate)
@@ -74,14 +75,6 @@ def create_ae_fun(free_vars,model,rand,hyper_params):
     test = theano.function([x],y)
     get_image = theano.function([x],z)
     return train,test,get_image
-
-def get_crossentropy_loss(x,y,z):
-    L = - T.sum(x * T.log(z) + (1 - x) * T.log(1 - z), axis=1)
-    return T.mean(L)
-
-def get_l2_loss(x,z):
-    L = T.sqrt(T.sum( (x-z)*(x-z), axis=1))
-    return T.mean(L)
 
 def get_corrupted_input(free_vars,corruption_level,rand):
     rng=rand.theano_rng
