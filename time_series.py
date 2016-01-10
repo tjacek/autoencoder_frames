@@ -58,12 +58,13 @@ def read_config(config_path):
     return conf
 
 if __name__ == "__main__":
-    config_path="../cascade2/config/zx.cfg"
+    config_path="../cascade4/config/throw.cfg"
     conf=read_config(config_path)
     dim=int(conf['dim']) 
     create_time_series(conf,dim)
-    if(bool(conf['indicator'])):    
-        ind.extract_indicator_features(conf['series'],conf['dataset'])
+    indicator=int(conf['indicator'])
+    if(indicator!=0):    
+        ind.extract_indicator_features(conf['series'],conf['dataset'],indicator)
     else:
         features.extract_features(conf['series'],conf['dataset'])
     features.make_sequences(conf['series'],conf['seq'],0)
