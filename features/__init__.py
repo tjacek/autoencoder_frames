@@ -1,7 +1,7 @@
 import utils
 import numpy as np
 
-ABC="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+ABC="?ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 def extract_features(in_path,out_path):
     action_t_series=utils.read_dir_objects(in_path)
@@ -38,7 +38,7 @@ def robust_category(prob_vector):
     print("OK")
     max_prob=prob_vector.max()
     if(prob_vector.max()>0.70):
-        return np.where(prob_vector==max_prob)[0] 
+        return np.where(prob_vector==max_prob)[0] + 1 
     return 0
 
 def make_sequences(in_path,out_path,dim=0):
