@@ -34,10 +34,10 @@ def category_series(arr):
         cat_series[i]= robust_category(arr[i]) #np.argmax(arr[i])
     return cat_series
 
-def robust_category(prob_vector):
+def robust_category(prob_vector,threshold=0.7):
     print("OK")
     max_prob=prob_vector.max()
-    if(prob_vector.max()>0.70):
+    if(prob_vector.max()>threshold):
         return np.where(prob_vector==max_prob)[0] + 1 
     return 0
 
