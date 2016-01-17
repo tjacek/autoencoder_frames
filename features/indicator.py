@@ -21,58 +21,81 @@ def apply_indicator_features(cats,indicator_id):
     return features
 
 def bc_indicator(cats):
+    C_index=feat.ABC.index("C")
+    B_index=feat.ABC.index("B")
     size=cats.size
     count=[0.0,0.0]
     for i in range(0,size):
         if(cats[i]==1):
-            count[0]=1.0
+            count[0]=B_index
         if(cats[i]==2):
-            count[1]=1.0
+            count[1]=C_index
     return count[0]*count[1]   
 
 def fg_indicator(cats):
+    E_index=feat.ABC.index("E")
+    F_index=feat.ABC.index("F")
+    G_index=feat.ABC.index("G")
     size=cats.size
-    count=[1.0,1.0]
+    count=[1.0,1.0,1.0]
     for i in range(0,size):
-        if(cats[i]==5):
+        if(cats[i]==4):
             count[0]=0.0
-        if(cats[i]==6):
+        if(cats[i]==5):
             count[1]=0.0
-    return count[0]*count[1] 
-
+        if(cats[i]==6):
+            count[2]=0.0
+    result=count[0]*count[1]*count[2]
+    return  result*bc_indicator(cats)
 
 def cb_indicator(cats):
+    C_index=feat.ABC.index("C")
+    B_index=feat.ABC.index("B")
     size=cats.size
     count=0.0
     for i in range(0,size-1):
-        if(cats[i]==2 and cats[i+1]==1):
+        if(cats[i]==C_index and cats[i+1]==B_index):
             count=1.0
     return count    
 
 def af_indicator(cats):
+    A_index=feat.ABC.index("A")
+    F_index=feat.ABC.index("F")
     size=cats.size
     count=0.0
     for i in range(0,size-1):
-        if(cats[i]==0 and cats[i+1]==5):
+        if(cats[i]==A_index and cats[i+1]==F_index):
+            count=1.0
+    return count  
+
+def fe_indicator(cats):
+    A_index=feat.ABC.index("F")
+    F_index=feat.ABC.index("E")
+    size=cats.size
+    count=0.0
+    for i in range(0,size-1):
+        if(cats[i]==A_index and cats[i+1]==F_index):
             count=1.0
     return count  
 
 def cc_indicator(cats):
+    C_index=feat.ABC.index("C")
     size=cats.size
     count=0.0
     for i in range(0,size-1):
-        if(cats[i]==2 and cats[i+1]==2):
+        if(cats[i]==C_index and cats[i+1]==C_index):
             count=1.0
     return count 
 
 def dd_indicator(cats):
+    D_index=feat.ABC.index("D")
     size=cats.size
     count=0.0
     for i in range(0,size-1):
-        if(cats[i]==3 and cats[i+1]==3):
+        if(cats[i]==D_index and cats[i+1]==D_index):
             count=1.0
     return count 
 
 indicator_features=[[],
-                    [af_indicator,cc_indicator,dd_indicator,cb_indicator],
+                    [af_indicator,fe_indicator,cc_indicator,dd_indicator,cb_indicator],
                     [bc_indicator,fg_indicator]]
