@@ -14,7 +14,7 @@ def category_count(action):
     return np.concatenate(raw_count),str(action.cat)+"#"+str(action.person)
 
 def category_histogram(dim,cat_series):
-    hist=np.zeros(dim)
+    hist=np.zeros(dim+1)
     hist=hist.astype(float)
     print(type(cat_series))
     for cat_i in cat_series:    
